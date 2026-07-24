@@ -1,0 +1,17 @@
+{
+  "name": "bubu-cloud-server",
+  "version": "1.0.0",
+  "description": "小熊日志云端 WebSocket 后端",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.16.0",
+    "web-push": "^3.6.7"
+  }
+}
