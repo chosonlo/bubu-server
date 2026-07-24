@@ -49,7 +49,7 @@ const server = http.createServer((req, res) => {
 
 // ============ WebSocket Server ============
 // Render free tier 對 /ws 子路徑支持有問題，改用根路徑
-const wss = new WebSocketServer({ server, path: '/' });
+const wss = new WebSocketServer({ server, path: '/ws' });
 
 wss.on('connection', (ws) => {
   wsInfo.set(ws, { roomCode: null, name: '', gender: '' });
@@ -217,5 +217,5 @@ function broadcast(selfWs, roomCode, data) {
 server.listen(PORT, () => {
   console.log(`一二布布云端服务器已启动`);
   console.log(`  端口: ${PORT}`);
-  console.log(`  WebSocket 路径: /`);
+  console.log( WebSocket 路径: /ws);
 });
