@@ -9,7 +9,6 @@ const webpush = require('web-push');
 const PORT = process.env.PORT || 10000;
 
 // ============ Web Push VAPID Keys ============
-// 生產環境建議用固定 keys，可通過環境變量注入
 let vapidKeys;
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   vapidKeys = {
@@ -28,14 +27,14 @@ webpush.setVapidDetails(
 );
 
 // ============ 数据结构 ============
-const rooms = {};        // pairCode -> { clients: Set<ws>, subscriptions: [] }
-const wsInfo = new Map(); // ws -> { roomCode, name, gender }
+const rooms = {};
+const wsInfo = new Map();
 
 // ============ HTTP Server (health check) ============
 const server = http.createServer((req, res) => {
   if (req.url === '/health' || req.url === '/') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ ok: true, uptime: process.uptime(), wsClients: wss.clients.size }));
+    res.end(JSON.stringify({ ok: true, uptime: process.uptime(), wsClients: wss.clients.size, service: 'bubu-server' }));
     return;
   }
   if (req.url === '/api/vapid-public') {
@@ -48,12 +47,12 @@ const server = http.createServer((req, res) => {
 });
 
 // ============ WebSocket Server ============
+// Render free tier 对 /ws 子路径支持有问题，改用根路径
 const wss = new WebSocketServer({ server, path: '/' });
 
 wss.on('connection', (ws) => {
   wsInfo.set(ws, { roomCode: null, name: '', gender: '' });
 
-  // 心跳：防止雲端代理/負載均衡斷開空閒連線
   ws.isAlive = true;
   ws.on('pong', () => { ws.isAlive = true; });
 
@@ -188,7 +187,6 @@ wss.on('connection', (ws) => {
   });
 });
 
-// 心跳檢測：每 30 秒 ping 一次，未響應則斷開
 const heartbeat = setInterval(() => {
   wss.clients.forEach((ws) => {
     if (ws.isAlive === false) return ws.terminate();
@@ -201,7 +199,6 @@ wss.on('close', () => {
   clearInterval(heartbeat);
 });
 
-// 广播给房间内除了自己以外的所有人
 function broadcast(selfWs, roomCode, data) {
   const room = rooms[roomCode];
   if (!room) return;
@@ -216,5 +213,5 @@ function broadcast(selfWs, roomCode, data) {
 server.listen(PORT, () => {
   console.log(`一二布布云端服务器已启动`);
   console.log(`  端口: ${PORT}`);
-  console.log(`  WebSocket 路径: /);
+  console.log(`  WebSocket 路径: /`);
 });
