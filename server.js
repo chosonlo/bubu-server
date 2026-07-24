@@ -47,7 +47,6 @@ const server = http.createServer((req, res) => {
 });
 
 // ============ WebSocket Server ============
-// Render free tier 对 /ws 子路径支持有问题，改用根路径
 const wss = new WebSocketServer({ server, path: '/' });
 
 wss.on('connection', (ws) => {
